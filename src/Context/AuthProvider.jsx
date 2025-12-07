@@ -6,6 +6,7 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 
@@ -46,6 +47,13 @@ export default function AuthProvider({ children }) {
     return signOut(auth);
   };
 
+  const updateUserProfile = (name, photo) => {
+    return updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: photo,
+    });
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       //console.log("Auth State Changed:", user);
@@ -65,6 +73,7 @@ export default function AuthProvider({ children }) {
     signoutUser,
     forgotPass,
     Signinwithgoogle,
+    updateUserProfile,
   };
 
   return <AuthContext value={authInfo}> {children} </AuthContext>;

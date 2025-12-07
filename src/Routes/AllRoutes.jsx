@@ -5,12 +5,22 @@ import Signin from "../Pages/Signin/Signin";
 import ForgotPass from "../Pages/Forgotpass/ForgotPass";
 import Root from "../Layout/Root";
 import Authlayout from "../Layout/Authlayout";
+import ClubDetails from "../Pages/ClubDetails/ClubDetails";
+import PrivateRoute from "./PrivRoutes";
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
     children: [
       { index: true, Component: Home },
+      {
+        path: "club/:id",
+        element: (
+          <PrivateRoute>
+            <ClubDetails />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
   {
@@ -23,4 +33,3 @@ export const router = createBrowserRouter([
     ],
   }
 ]);
-    
