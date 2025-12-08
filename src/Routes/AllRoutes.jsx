@@ -7,6 +7,10 @@ import Root from "../Layout/Root";
 import Authlayout from "../Layout/Authlayout";
 import ClubDetails from "../Pages/ClubDetails/ClubDetails";
 import PrivateRoute from "./PrivRoutes";
+import ClubReg from "../Component/Regsitration/ClubReg";
+import DashBoardLayout from "../Layout/DashBoard/DashBoardLayout";
+import menberDashboard from "../Layout/DashBoard/menberDashboard";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -21,6 +25,14 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      {
+        path: "clubjoin",
+        element: (
+          <PrivateRoute>
+            <ClubReg />
+          </PrivateRoute>
+        ),
+      },
     ],
   },
   {
@@ -31,5 +43,16 @@ export const router = createBrowserRouter([
       { path: "login", Component: Signin },
       { path: "forgotpass", Component: ForgotPass },
     ],
-  }
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashBoardLayout />
+      </PrivateRoute>
+    ),
+    children: [
+      { path: "mydashboard", Component: menberDashboard },
+    ],
+  },
 ]);

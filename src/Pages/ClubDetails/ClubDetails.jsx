@@ -1,29 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
 
 const ClubDetails = () => {
     const { id } = useParams();
     const axiosInstance = useAxiosSecurity();
-    const [club, setClub] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchClubDetails = async () => {
-            try {
-                const response = await axiosInstance.get(`/clubs/${id}`);
-                setClub(response.data);
-            } catch (error) {
-                console.error("Error fetching club details:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchClubDetails();
-    }, [id, axiosInstance]);
+    const {
+        data: club,
+        isLoading,
+        isError,
+    } = useQuery(['club', id], async () => {
+        const { data } = await axiosInstance.get(`/clubs/${id}`);
+        return data;
+    });
 
-    if (loading) return <div className="text-center py-20">Loading...</div>;
-    if (!club) return <div className="text-center py-20">Club not found.</div>;
+    if (isLoading) return <div className="text-center py-20">Loading...</div>;
+    if (isError || !club) return <div className="text-center py-20">Club not found.</div>;
 
     return (
         <div className="container mx-auto py-10 px-4">
@@ -57,7 +51,8 @@ const ClubDetails = () => {
 
                     <div className="card-actions justify-end mt-auto">
                         <Link to="/" className="btn btn-outline">Back to Clubs</Link>
-                        <button className="btn btn-primary">Join Club</button>
+                        <Link to="/clubjoin" state={{ clubId: club._id }} className="btn btn-primary">Join Club</Link>
+
                     </div>
                 </div>
             </div>

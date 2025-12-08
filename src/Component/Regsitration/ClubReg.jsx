@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLocation } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 export default function ClubJoin() {
   const {
@@ -12,70 +15,85 @@ export default function ClubJoin() {
   } = useForm();
 
   const axiosInstance = useAxiosSecurity();
-  const [clubs, setClubs] = useState([]);
-  const [selectedClub, setSelectedClub] = useState(null);
+  const location = useLocation();
+  const queryClient = useQueryClient();
 
+  // Fetch clubs list
+  const {
+    data: clubs = [],
+    isLoading,
+    isError,
+  } = useQuery(['clubs'], async () => {
+    const { data } = await axiosInstance.get('/clubs');
+    return data;
+  });
+
+  // Pre‑select club when coming from ClubDetails
   useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const response = await axiosInstance.get('/clubs');
-        setClubs(response.data);
-      } catch (error) {
-        console.error("Error fetching clubs:", error);
+    if (clubs.length > 0 && location.state?.clubId) {
+      const pre = clubs.find(c => c._id === location.state.clubId);
+      if (pre) {
+        setValue('clubId', pre._id);
+        setSelectedClub(pre);
       }
-    };
-    fetchClubs();
-  }, [axiosInstance]);
+    }
+  }, [clubs, location.state, setValue]);
 
-  const handleClubChange = (e) => {
-    const selectedClubId = e.target.value;
-    const club = clubs.find(c => c._id === selectedClubId);
+  const [selectedClub, setSelectedClub] = React.useState(null);
+
+  const handleClubChange = e => {
+    const id = e.target.value;
+    const club = clubs.find(c => c._id === id);
     setSelectedClub(club);
   };
 
-  const onSubmit = async (data) => {
-    try {
-      let paymentId = null;
-
-      // 1. Process Payment if fee > 0
-      if (selectedClub && selectedClub.membershipFee > 0) {
-        const paymentData = {
-          userEmail: data.userEmail,
-          amount: selectedClub.membershipFee,
-          type: 'membership',
-          clubId: selectedClub._id,
-          status: 'completed' // Mocking successful payment
-        };
-        const paymentResponse = await axiosInstance.post('/payments', paymentData);
-        if (paymentResponse.data.insertedId) {
-             paymentId = paymentResponse.data.insertedId;
-        } else {
-             throw new Error("Payment failed");
-        }
-      }
-
-      // 2. Create Membership
-      const membershipData = {
+  // Mutation that creates payment (if needed) then membership
+  const joinMutation = useMutation(async data => {
+    let paymentId = null;
+    if (selectedClub && selectedClub.membershipFee > 0) {
+      const paymentData = {
         userEmail: data.userEmail,
+        amount: selectedClub.membershipFee,
+        type: 'membership',
         clubId: selectedClub._id,
-        status: 'active',
-        paymentId: paymentId,
-        joinedAt: new Date(),
+        status: 'completed',
       };
-
-      const membershipResponse = await axiosInstance.post('/memberships', membershipData);
-      
-      if (membershipResponse.data.acknowledged) {
-        alert(`Successfully joined ${selectedClub.clubName}!`);
-        reset();
-        setSelectedClub(null);
-      }
-
-    } catch (error) {
-      console.error("Error joining club:", error);
-      alert('Failed to join club. ' + error.message);
+      const paymentRes = await axiosInstance.post('/payments', paymentData);
+      if (paymentRes.data.insertedId) paymentId = paymentRes.data.insertedId;
+      else throw new Error('Payment failed');
     }
+    const membershipData = {
+      userEmail: data.userEmail,
+      clubId: selectedClub._id,
+      status: 'active',
+      paymentId,
+      joinedAt: new Date(),
+    };
+    const membershipRes = await axiosInstance.post('/memberships', membershipData);
+    if (!membershipRes.data.acknowledged) throw new Error('Membership creation failed');
+    return membershipRes;
+  }, {
+    onSuccess: () => {
+      toast.success('Successfully joined club!');
+      reset();
+      setSelectedClub(null);
+      queryClient.invalidateQueries(['clubs']);
+    },
+    onError: err => {
+      toast.error('Failed to join club: ' + err.message);
+    },
+  });
+
+  const onSubmit = data => {
+    if (!selectedClub) {
+      toast.error('Please select a club');
+      return;
+    }
+    joinMutation.mutate(data);
   };
+
+  if (isLoading) return <div className="text-center py-20">Loading clubs…</div>;
+  if (isError) return <div className="text-center py-20 text-error">Error loading clubs.</div>;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-base-200 py-10">
@@ -83,7 +101,6 @@ export default function ClubJoin() {
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-6">Join a Club</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            
             {/* Club Dropdown */}
             <div className="form-control">
               <label className="label">
@@ -95,21 +112,37 @@ export default function ClubJoin() {
                 onChange={handleClubChange}
               >
                 <option value="">Select a club</option>
-                {clubs.map((club) => (
-                    <option key={club._id} value={club._id}>
-                        {club.clubName}
-                    </option>
+                {clubs.map(club => (
+                  <option key={club._id} value={club._id}>
+                    {club.clubName}
+                  </option>
                 ))}
               </select>
-              {errors.clubId && <span className="text-error text-sm">Club selection is required</span>}
+              {errors.clubId && (
+                <span className="text-error text-sm">Club selection is required</span>
+              )}
             </div>
 
             {/* Membership Fee Info */}
             {selectedClub && (
               <div className="alert alert-success shadow-lg">
                 <div>
-                   <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                   <span>Membership Fee: <strong>${selectedClub.membershipFee}</strong></span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current flex-shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span>
+                    Membership Fee: <strong>{selectedClub.membershipFee}</strong>
+                  </span>
                 </div>
               </div>
             )}
@@ -125,12 +158,16 @@ export default function ClubJoin() {
                 className="input input-bordered w-full"
                 {...register('userEmail', { required: true })}
               />
-              {errors.userEmail && <span className="text-error text-sm">Email is required</span>}
+              {errors.userEmail && (
+                <span className="text-error text-sm">Email is required</span>
+              )}
             </div>
 
             <div className="form-control mt-6">
-              <button type="submit" className="btn btn-primary">
-                {selectedClub && selectedClub.membershipFee > 0 ? `Pay $${selectedClub.membershipFee} & Join` : 'Join Club'}
+              <button type="submit" className="btn btn-primary" disabled={joinMutation.isLoading}>
+                {selectedClub && selectedClub.membershipFee > 0
+                  ? `Pay $${selectedClub.membershipFee} & Join`
+                  : 'Join Club'}
               </button>
             </div>
           </form>

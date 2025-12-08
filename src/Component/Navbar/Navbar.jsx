@@ -21,7 +21,13 @@ const Navbar = () => {
       <li>
         <NavLink to="/events">Events</NavLink>
       </li>
-    
+    {
+      user && <>
+      <li>
+        <NavLink to="/dashboard/mydashboard">Dashboard</NavLink>
+      </li>
+      </>
+    }
     </>
   );
   return (

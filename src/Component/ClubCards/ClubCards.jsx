@@ -1,34 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
-const ClubsCards = () => {
-    const axiosInstance = useAxiosSecurity();
-    const [clubs, setClubs] = useState([]);
+import { useQuery } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
-    useEffect(() => {
-        const fetchClubs = async () => {
-            try {
-                const response = await axiosInstance.get('/clubs');
-                setClubs(response.data);
-            } catch (error) {
-                console.error("Error fetching clubs:", error);
-            }
-        };
-        fetchClubs();
-    }, [axiosInstance]);
+const ClubCards = () => {
+    const axiosInstance = useAxiosSecurity();
+
+    const {
+        data: clubs = [],
+        isLoading,
+        isError,
+    } = useQuery(['clubs'], async () => {
+        const { data } = await axiosInstance.get('/clubs');
+        return data;
+    });
+
+    if (isLoading) {
+        return <div className="text-center py-20">Loading clubs…</div>;
+    }
+
+    if (isError) {
+        toast.error('Failed to load clubs');
+        return <div className="text-center py-20 text-error">Error loading clubs.</div>;
+    }
 
     return (
         <div className="container mx-auto py-10">
             <h1 className="text-3xl font-bold text-center mb-10">All Clubs</h1>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {clubs.map((club) => (
-                    <Link to={`/club/${club._id}`} key={club._id} className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer">
+                    <Link
+                        to={`/club/${club._id}`}
+                        key={club._id}
+                        className="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer"
+                    >
                         <figure>
                             {club.bannerImage ? (
-                                <img src={club.bannerImage} alt={club.clubName} className="h-48 w-full object-cover" />
+                                <img
+                                    src={club.bannerImage}
+                                    alt={club.clubName}
+                                    className="h-48 w-full object-cover"
+                                />
                             ) : (
-                                <img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp" alt="Club" className="h-48 w-full object-cover" />
+                                <img
+                                    src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                                    alt="Club"
+                                    className="h-48 w-full object-cover"
+                                />
                             )}
                         </figure>
                         <div className="card-body">
@@ -50,7 +69,7 @@ const ClubsCards = () => {
                 ))}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ClubsCards
+export default ClubCards;
