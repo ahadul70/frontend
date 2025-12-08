@@ -2,10 +2,12 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
+import useAuth from '../../Context/useAuth';
 
 const ClubDetails = () => {
     const { id } = useParams();
     const axiosInstance = useAxiosSecurity();
+    const { user } = useAuth();
 
     const {
         data: club,
@@ -18,6 +20,20 @@ const ClubDetails = () => {
             return data;
         },
     });
+
+    // Check if user already has membership
+    const { data: memberships = [] } = useQuery({
+        queryKey: ['user-memberships', user?.email],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get(`/memberships?email=${user?.email}`);
+            return data;
+        },
+        enabled: !!user?.email
+    });
+
+    const hasActiveMembership = memberships.some(
+        m => m.clubId === id && m.status === 'active'
+    );
 
     if (isLoading) return <div className="text-center py-20">Loading...</div>;
     if (isError || !club) return <div className="text-center py-20">Club not found.</div>;
@@ -52,10 +68,27 @@ const ClubDetails = () => {
                         </div>
                     </div>
 
+                    {/* Membership Status Alert */}
+                    {hasActiveMembership && (
+                        <div className="alert alert-success mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>You are already a member of this club!</span>
+                        </div>
+                    )}
+
                     <div className="card-actions justify-end mt-auto">
                         <Link to="/" className="btn btn-outline">Back to Clubs</Link>
-                        <Link to="/clubjoin" state={{ clubId: club._id }} className="btn btn-primary">Join Club</Link>
-
+                        {hasActiveMembership ? (
+                            <button className="btn btn-disabled" disabled>
+                                Already a Member
+                            </button>
+                        ) : (
+                            <Link to="/clubjoin" state={{ clubId: club._id }} className="btn btn-primary">
+                                Join Club
+                            </Link>
+                        )}
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -16,6 +16,7 @@ export default function ClubJoin() {
 
   const axiosInstance = useAxiosSecurity();
   const location = useLocation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Fetch clubs list
@@ -50,27 +51,16 @@ export default function ClubJoin() {
     setSelectedClub(club);
   };
 
-  // Mutation that creates payment (if needed) then membership
+
+  // Mutation for free clubs only (paid clubs go through payment page)
   const joinMutation = useMutation({
     mutationFn: async data => {
-      let paymentId = null;
-      if (selectedClub && selectedClub.membershipFee > 0) {
-        const paymentData = {
-          userEmail: data.userEmail,
-          amount: selectedClub.membershipFee,
-          type: 'membership',
-          clubId: selectedClub._id,
-          status: 'completed',
-        };
-        const paymentRes = await axiosInstance.post('/payments', paymentData);
-        if (paymentRes.data.insertedId) paymentId = paymentRes.data.insertedId;
-        else throw new Error('Payment failed');
-      }
+      // Create membership directly (no payment needed for free clubs)
       const membershipData = {
         userEmail: data.userEmail,
         clubId: selectedClub._id,
         status: 'active',
-        paymentId,
+        paymentId: null,
         joinedAt: new Date(),
       };
       const membershipRes = await axiosInstance.post('/memberships', membershipData);
@@ -82,9 +72,15 @@ export default function ClubJoin() {
       reset();
       setSelectedClub(null);
       queryClient.invalidateQueries({ queryKey: ['clubs'] });
+      queryClient.invalidateQueries({ queryKey: ['user-memberships'] });
     },
     onError: err => {
-      toast.error('Failed to join club: ' + err.message);
+      // Check if it's a duplicate membership error (409 Conflict)
+      if (err.response?.status === 409) {
+        toast.error('You already have an active membership for this club!');
+      } else {
+        toast.error('Failed to join club: ' + (err.response?.data?.message || err.message));
+      }
     },
   });
 
@@ -93,7 +89,19 @@ export default function ClubJoin() {
       toast.error('Please select a club');
       return;
     }
-    joinMutation.mutate(data);
+
+    // If club has a membership fee, navigate to payment page
+    if (selectedClub.membershipFee > 0) {
+      navigate('/payment/club-fee', {
+        state: {
+          club: selectedClub,
+          userEmail: data.userEmail
+        }
+      });
+    } else {
+      // For free clubs, directly create membership
+      joinMutation.mutate(data);
+    }
   };
 
   if (isLoading) return <div className="text-center py-20">Loading clubs…</div>;

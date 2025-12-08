@@ -13,6 +13,8 @@ import MemberOverview from "../Pages/Dashboard/MemberOverview";
 import MyClubs from "../Pages/Dashboard/MyClubs";
 import MyEvents from "../Pages/Dashboard/MyEvents";
 import PaymentHistory from "../Pages/Dashboard/PaymentHistory";
+import PaymentClubsFee from "../Pages/Payment/PaymentClubsFee";
+import PaymentEventFee from "../Pages/Payment/PaymentEventFee";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +35,22 @@ export const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <ClubReg />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment/club-fee",
+        element: (
+          <PrivateRoute>
+            <PaymentClubsFee />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "payment/event-fee",
+        element: (
+          <PrivateRoute>
+            <PaymentEventFee />
           </PrivateRoute>
         ),
       },
