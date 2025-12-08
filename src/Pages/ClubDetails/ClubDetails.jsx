@@ -11,9 +11,12 @@ const ClubDetails = () => {
         data: club,
         isLoading,
         isError,
-    } = useQuery(['club', id], async () => {
-        const { data } = await axiosInstance.get(`/clubs/${id}`);
-        return data;
+    } = useQuery({
+        queryKey: ['club', id],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get(`/clubs/${id}`);
+            return data;
+        },
     });
 
     if (isLoading) return <div className="text-center py-20">Loading...</div>;

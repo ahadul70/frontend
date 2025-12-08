@@ -11,9 +11,12 @@ const ClubCards = () => {
         data: clubs = [],
         isLoading,
         isError,
-    } = useQuery(['clubs'], async () => {
-        const { data } = await axiosInstance.get('/clubs');
-        return data;
+    } = useQuery({
+        queryKey: ['clubs'],
+        queryFn: async () => {
+            const { data } = await axiosInstance.get('/clubs');
+            return data;
+        },
     });
 
     if (isLoading) {

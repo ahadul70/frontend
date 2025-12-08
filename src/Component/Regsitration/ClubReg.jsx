@@ -23,9 +23,12 @@ export default function ClubJoin() {
     data: clubs = [],
     isLoading,
     isError,
-  } = useQuery(['clubs'], async () => {
-    const { data } = await axiosInstance.get('/clubs');
-    return data;
+  } = useQuery({
+    queryKey: ['clubs'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get('/clubs');
+      return data;
+    }
   });
 
   // Pre‑select club when coming from ClubDetails
@@ -48,36 +51,37 @@ export default function ClubJoin() {
   };
 
   // Mutation that creates payment (if needed) then membership
-  const joinMutation = useMutation(async data => {
-    let paymentId = null;
-    if (selectedClub && selectedClub.membershipFee > 0) {
-      const paymentData = {
+  const joinMutation = useMutation({
+    mutationFn: async data => {
+      let paymentId = null;
+      if (selectedClub && selectedClub.membershipFee > 0) {
+        const paymentData = {
+          userEmail: data.userEmail,
+          amount: selectedClub.membershipFee,
+          type: 'membership',
+          clubId: selectedClub._id,
+          status: 'completed',
+        };
+        const paymentRes = await axiosInstance.post('/payments', paymentData);
+        if (paymentRes.data.insertedId) paymentId = paymentRes.data.insertedId;
+        else throw new Error('Payment failed');
+      }
+      const membershipData = {
         userEmail: data.userEmail,
-        amount: selectedClub.membershipFee,
-        type: 'membership',
         clubId: selectedClub._id,
-        status: 'completed',
+        status: 'active',
+        paymentId,
+        joinedAt: new Date(),
       };
-      const paymentRes = await axiosInstance.post('/payments', paymentData);
-      if (paymentRes.data.insertedId) paymentId = paymentRes.data.insertedId;
-      else throw new Error('Payment failed');
-    }
-    const membershipData = {
-      userEmail: data.userEmail,
-      clubId: selectedClub._id,
-      status: 'active',
-      paymentId,
-      joinedAt: new Date(),
-    };
-    const membershipRes = await axiosInstance.post('/memberships', membershipData);
-    if (!membershipRes.data.acknowledged) throw new Error('Membership creation failed');
-    return membershipRes;
-  }, {
+      const membershipRes = await axiosInstance.post('/memberships', membershipData);
+      if (!membershipRes.data.acknowledged) throw new Error('Membership creation failed');
+      return membershipRes;
+    },
     onSuccess: () => {
       toast.success('Successfully joined club!');
       reset();
       setSelectedClub(null);
-      queryClient.invalidateQueries(['clubs']);
+      queryClient.invalidateQueries({ queryKey: ['clubs'] });
     },
     onError: err => {
       toast.error('Failed to join club: ' + err.message);
@@ -164,7 +168,7 @@ export default function ClubJoin() {
             </div>
 
             <div className="form-control mt-6">
-              <button type="submit" className="btn btn-primary" disabled={joinMutation.isLoading}>
+              <button type="submit" className="btn btn-primary" disabled={joinMutation.isPending}>
                 {selectedClub && selectedClub.membershipFee > 0
                   ? `Pay $${selectedClub.membershipFee} & Join`
                   : 'Join Club'}

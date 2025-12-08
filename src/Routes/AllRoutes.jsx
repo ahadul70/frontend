@@ -9,7 +9,10 @@ import ClubDetails from "../Pages/ClubDetails/ClubDetails";
 import PrivateRoute from "./PrivRoutes";
 import ClubReg from "../Component/Regsitration/ClubReg";
 import DashBoardLayout from "../Layout/DashBoard/DashBoardLayout";
-import menberDashboard from "../Layout/DashBoard/menberDashboard";
+import MemberOverview from "../Pages/Dashboard/MemberOverview";
+import MyClubs from "../Pages/Dashboard/MyClubs";
+import MyEvents from "../Pages/Dashboard/MyEvents";
+import PaymentHistory from "../Pages/Dashboard/PaymentHistory";
 
 export const router = createBrowserRouter([
   {
@@ -52,7 +55,13 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      { path: "mydashboard", Component: menberDashboard },
+      { path: "overview", Component: MemberOverview },
+      { path: "my-clubs", Component: MyClubs },
+      { path: "my-events", Component: MyEvents },
+      { path: "payment-history", Component: PaymentHistory },
+      // Redirect or default
+      { path: "mydashboard", Component: MemberOverview }, // Legacy/alias
+      { index: true, Component: MemberOverview },
     ],
   },
 ]);

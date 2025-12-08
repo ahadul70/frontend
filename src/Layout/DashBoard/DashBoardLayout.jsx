@@ -1,57 +1,151 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import React, { useState } from "react";
+import { Outlet, NavLink, Link } from "react-router-dom";
 
-function DashBoardLayout() {
+export default function DashBoardLayout() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <div className="drawer lg:drawer-open">
-      <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
-      <div className="drawer-content">
-        {/* Navbar */}
-        <nav className="navbar w-full bg-base-300">
-          <label htmlFor="my-drawer-4" aria-label="open sidebar" className="btn btn-square btn-ghost">
-            {/* Sidebar toggle icon */}
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4">
-              <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
-              <path d="M9 4v16" />
-              <path d="M14 10l2 2l-2 2" />
+    <div className="drawer lg:drawer-open min-h-screen">
+      <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
+
+      {/* MAIN CONTENT */}
+      <div className="drawer-content flex flex-col">
+
+        {/* NAVBAR (Mobile Only) */}
+        <nav className="navbar w-full bg-base-300 lg:hidden">
+          <label
+            htmlFor="dashboard-drawer"
+            aria-label="open sidebar"
+            className="btn btn-square btn-ghost"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </label>
-          <div className="px-4">Navbar Title</div>
+
+          <div className="text-xl font-bold px-4">ClubSphere Dashboard</div>
         </nav>
-        {/* Page content here */}
-        <Outlet />
-        <div className="p-4">Page Content</div>
+
+        {/* PAGE CONTENT */}
+        <main className="flex-1 bg-base-200 p-4 min-h-full">
+          <Outlet />
+        </main>
       </div>
 
-      <div className="drawer-side is-drawer-close:overflow-visible">
-        <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-        <div className="flex min-h-full flex-col items-start bg-base-200 is-drawer-close:w-14 is-drawer-open:w-64">
-          {/* Sidebar content here */}
-          <ul className="menu w-full grow">
-            {/* List item */}
-            <li>
-              <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Homepage">
-                {/* Home icon */}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4">
-                  <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-                  <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                </svg>
-                <span className="is-drawer-close:hidden">Homepage</span>
+      {/* SIDEBAR */}
+      <div className="drawer-side z-20">
+        <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
+
+        <div
+          className={`flex min-h-full flex-col items-start bg-base-100 transition-all duration-300 
+            ${isCollapsed ? "w-16" : "w-72"}`}
+        >
+          <ul className="menu w-full p-4">
+
+            {/* SIDEBAR HEADER */}
+            <li className="mb-4 flex items-center justify-between">
+              <Link
+                to="/"
+                className={`text-xl font-bold p-2 ${isCollapsed ? "w-full text-center" : ""}`}
+              >
+                {isCollapsed ? "CS" : "ClubSphere"}
+              </Link>
+
+              {/* collapse button */}
+              <button
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="btn btn-circle btn-ghost btn-sm hidden lg:flex"
+              >
+                {!isCollapsed ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  </svg>
+                )}
               </button>
             </li>
 
-            {/* List item */}
+            {/* MENU ITEMS */}
             <li>
-              <button className="is-drawer-close:tooltip is-drawer-close:tooltip-right" data-tip="Settings">
-                {/* Settings icon */}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4">
-                  <path d="M20 7h-9" />
-                  <path d="M14 17H5" />
-                  <circle cx="17" cy="17" r="3" />
-                  <circle cx="7" cy="7" r="3" />
+              <NavLink
+                to="/dashboard/overview"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Overview"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m7-7l7 7M5 10v10h3m10-11l2 2v10h-3m-6 0v-4h4v4" />
                 </svg>
-                <span className="is-drawer-close:hidden">Settings</span>
-              </button>
+                {!isCollapsed && <span>Overview</span>}
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/dashboard/my-clubs"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="My Clubs"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2a5 5 0 00-9.288 0M7 20H2v-2a3 3 0 015.356-1.857" />
+                </svg>
+                {!isCollapsed && <span>My Clubs</span>}
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/dashboard/my-events"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="My Events"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14V7H5v14z" />
+                </svg>
+                {!isCollapsed && <span>My Events</span>}
+              </NavLink>
+            </li>
+
+            <li>
+              <NavLink
+                to="/dashboard/payment-history"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Payment History"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M3 10h18M7 15h1m4 0h1M6 5h12a3 3 0 013 3v8a3 3 0 01-3 3H6a3 3 0 01-3-3V8a3 3 0 013-3z" />
+                </svg>
+                {!isCollapsed && <span>Payment History</span>}
+              </NavLink>
+            </li>
+
+            {/* Divider */}
+            <div className="divider"></div>
+
+            {/* Back Home */}
+            <li>
+              <Link
+                to="/"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Home"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M3 12l9-9 9 9v10H5a2 2 0 01-2-2V12z" />
+                </svg>
+                {!isCollapsed && <span>Home</span>}
+              </Link>
             </li>
           </ul>
         </div>
@@ -59,5 +153,3 @@ function DashBoardLayout() {
     </div>
   );
 }
-
-export default DashBoardLayout;
