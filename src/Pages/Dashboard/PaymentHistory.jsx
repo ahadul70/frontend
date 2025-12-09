@@ -31,6 +31,9 @@ const PaymentHistory = () => {
         return { ...pay, club };
     });
 
+    console.log("Payments from Query:", payments);
+    console.log("History mapped:", history);
+
     return (
         <div className="p-6">
             <h2 className="text-3xl font-bold mb-6">Payment History</h2>

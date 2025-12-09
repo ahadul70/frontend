@@ -15,9 +15,11 @@ function Login() {
 
     const handleLogin = (data) => {
         console.log('after register', data)
-        signInUser(data.email, data.password).then((result) => {
+        signInUser(data.email, data.password).then(async (result) => {
             const user = result.user;
             console.log(user)
+            const token = await user.getIdToken();
+            localStorage.setItem("token", token);
             const from = location.state?.from || "/";
             navigate(from, { replace: true });
             toast.success("🎉 Logged in successfully!");
@@ -31,9 +33,11 @@ function Login() {
 
     const handleGoogleLogin = () => {
         Signinwithgoogle()
-            .then((result) => {
+            .then(async (result) => {
                 const user = result.user;
                 console.log('Google user:', user);
+                const token = await user.getIdToken();
+                localStorage.setItem("token", token);
                 const from = location.state?.from || "/";
                 navigate(from, { replace: true });
                 toast.success("🎉 Logged in with Google successfully!");
