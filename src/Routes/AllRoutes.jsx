@@ -46,6 +46,7 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+      
       {
         path: "payment/event-fee",
         element: (
