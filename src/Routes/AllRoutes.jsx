@@ -7,14 +7,29 @@ import Root from "../Layout/Root";
 import Authlayout from "../Layout/Authlayout";
 import ClubDetails from "../Pages/ClubDetails/ClubDetails";
 import PrivateRoute from "./PrivRoutes";
-import ClubReg from "../Component/Regsitration/ClubReg";
 import DashBoardLayout from "../Layout/DashBoard/DashBoardLayout";
-import MemberOverview from "../Pages/Dashboard/MemberOverview";
-import MyClubs from "../Pages/Dashboard/MyClubs";
-import MyEvents from "../Pages/Dashboard/MyEvents";
-import PaymentHistory from "../Pages/Dashboard/PaymentHistory";
+import MemberOverview from "../Pages/Dashboard/members/MemberOverview";
+import MyClubs from "../Pages/Dashboard/members/MyClubs";
+import MyEvents from "../Pages/Dashboard/members/MyEvents";
+import MemberProfile from "../Pages/Dashboard/members/MemberProfile";
+import PaymentHistory from "../Pages/Dashboard/members/PaymentHistory";
 import PaymentClubsFee from "../Pages/Payment/PaymentClubsFee";
 import PaymentEventFee from "../Pages/Payment/PaymentEventFee";
+import ManageClubs from "../Pages/Dashboard/ClubManager/ManageClubs";
+import ManagerDashboard from "../Pages/Dashboard/ClubManager/ManagerDashboard";
+import ClubCreate from "../Component/Registration/ClubCreate";
+import ClubSignUp from "../Component/Registration/ClubSignUp";
+import ClubmangerSignUp from "../Component/Registration/ClubmangerSignUp";
+import PendingClubs from "../Pages/Dashboard/Admin/PendingClubs";
+import PendingClubManagers from "../Pages/Dashboard/Admin/PendingClubManagers";
+import ApprovedClubManagers from '../Pages/Dashboard/Admin/ApprovedClubManagers';
+import PendingEvents from '../Pages/Dashboard/Admin/PendingEvents';
+import ApprovedEvents from '../Pages/Dashboard/Admin/ApprovedEvents';
+import ApprovedClubs from "../Pages/Dashboard/Admin/ApprovedClubs";
+import ApprovedMembers from "../Pages/Dashboard/ClubManager/ApprovedMembers";
+import PendingMembers from "../Pages/Dashboard/ClubManager/PendingMembers";
+import Clubs from "../Pages/Clubs/Clubs";
+import Events from "../Pages/Events/Events";
 
 export const router = createBrowserRouter([
   {
@@ -28,13 +43,29 @@ export const router = createBrowserRouter([
           <PrivateRoute>
             <ClubDetails />
           </PrivateRoute>
-        ),
-      },
-      {
-        path: "clubjoin",
+        )
+      }, {
+        path: "join-club",
         element: (
           <PrivateRoute>
-            <ClubReg />
+            <ClubSignUp />
+          </PrivateRoute>
+        ),
+      },
+
+      {
+        path: "clubs",
+        Component: Clubs
+      },
+      {
+        path: "events",
+        Component: Events
+      },
+      {
+        path: "clubregister",
+        element: (
+          <PrivateRoute>
+            <ClubCreate />
           </PrivateRoute>
         ),
       },
@@ -46,12 +77,20 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
-      
+
       {
         path: "payment/event-fee",
         element: (
           <PrivateRoute>
             <PaymentEventFee />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "clubmangerregister",
+        element: (
+          <PrivateRoute>
+            <ClubmangerSignUp />
           </PrivateRoute>
         ),
       },
@@ -78,6 +117,25 @@ export const router = createBrowserRouter([
       { path: "my-clubs", Component: MyClubs },
       { path: "my-events", Component: MyEvents },
       { path: "payment-history", Component: PaymentHistory },
+      { path: "profile", Component: MemberProfile },
+
+      // Club Manager Routes
+      { path: "manage-clubs", Component: ManageClubs },
+      { path: "club-manager/:id", Component: ManagerDashboard },
+      { path: "approved-members", Component: ApprovedMembers },
+      { path: "pending-members", Component: PendingMembers },
+      //
+
+      // Admin Routes
+      { path: "pending-clubs", Component: PendingClubs },
+      { path: "pending-clubmanagers", Component: PendingClubManagers },
+      { path: "approved-clubmanagers", Component: ApprovedClubManagers },
+      { path: "approved-clubs", Component: ApprovedClubs },
+      { path: "approved-events", Component: ApprovedEvents },
+      { path: "pending-events", Component: PendingEvents },
+
+
+
       // Redirect or default
       { path: "mydashboard", Component: MemberOverview }, // Legacy/alias
       { index: true, Component: MemberOverview },

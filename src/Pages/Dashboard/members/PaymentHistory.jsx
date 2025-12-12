@@ -1,6 +1,6 @@
 import React from 'react';
-import useAuth from '../../Context/useAuth';
-import useAxiosSecurity from '../../Context/useAxiosSecurity';
+import useAuth from '../../../Context/useAuth';
+import useAxiosSecurity from '../../../Context/useAxiosSecurity';
 import { useQuery } from '@tanstack/react-query';
 
 const PaymentHistory = () => {

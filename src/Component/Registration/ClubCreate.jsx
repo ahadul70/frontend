@@ -1,6 +1,9 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import useAxiosSecurity from './useAxiosSecurity';
+import useAuth from '../../Context/useAuth';  
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import useAxiosSecurity from '../../Context/useAxiosSecurity';
 
 export default function ClubCreate() {
   const {
@@ -12,17 +15,36 @@ export default function ClubCreate() {
 
   const axiosInstance = useAxiosSecurity();
 
+  const { user } = useAuth(); // Get user from auth context
+  const navigate = useNavigate();
 
   const onSubmit = async (data) => {
+    if (!user) {
+      toast.error("You must be logged in to create a club");
+      return;
+    }
+
+    const clubData = {
+      ...data,
+      userEmail: user.email,
+      userName: user.displayName,
+      createdAt: new Date().toISOString(),
+    };
+
     try {
-        const response = await axiosInstance.post('/clubs', data);
-        if (response.data.acknowledged) {
-            alert('Club created successfully!');
-            reset();
-        }
+      const response = await axiosInstance.post('/clubs', clubData);
+      if (response.data.insertedId || response.data.acknowledged) {
+        toast.success('Club created successfully! Pending approval.');
+        reset();
+        navigate('/dashboard/manage-clubs'); // Redirect to manager dashboard
+      }
     } catch (error) {
-        console.error("Error creating club:", error);
-        alert('Failed to create club');
+      console.error("Error creating club:", error);
+      if (error.response && error.response.status === 409) {
+        toast.error("Club with this name already exists");
+      } else {
+        toast.error('Failed to create club');
+      }
     }
   };
 

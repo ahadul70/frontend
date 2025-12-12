@@ -3,11 +3,12 @@ import { useForm } from 'react-hook-form'
 import useAuth from '../../Context/useAuth'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast';
-
+import useAxiosSecurity from '../../Context/useAxiosSecurity'
 function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm()
 
     const { signInUser, Signinwithgoogle } = useAuth()
+    const axiosInstance = useAxiosSecurity();
     const [showpass, setShowpass] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
@@ -35,6 +36,19 @@ function Login() {
         Signinwithgoogle()
             .then(async (result) => {
                 const user = result.user;
+                try {
+                    await axiosInstance.post("/users", {
+                        name: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                    });
+                } catch (error) {
+                    if (error.response && error.response.status === 409) {
+                        console.log("User already exists in database, skipping creation.");
+                    } else {
+                        console.error("Error creating user in backend:", error);
+                    }
+                }
                 console.log('Google user:', user);
                 const token = await user.getIdToken();
                 localStorage.setItem("token", token);

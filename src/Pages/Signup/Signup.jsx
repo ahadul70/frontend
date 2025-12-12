@@ -1,11 +1,11 @@
 import React from 'react'
-import Reg from '../../Component/Regsitration/Reg'
+import Register from '../../Component/Registration/Register'
 
 const Signup = () => {
   return (
     <>
-    <h1>Signup</h1>
-    <Reg/>
+      <h1>Signup</h1>
+      <Register />
     </>
   )
 }

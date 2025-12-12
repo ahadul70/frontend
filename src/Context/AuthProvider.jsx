@@ -15,8 +15,11 @@ import { auth } from "../firebase/firebase.in";
 
 const googleprovider = new GoogleAuthProvider();
 
+import axios from "axios";
+
 export default function AuthProvider({ children }) {
   const [user, setUser] = React.useState(null);
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const forgotPass = (email) => {
@@ -55,18 +58,35 @@ export default function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      //console.log("Auth State Changed:", user);
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          // Using localhost:5000 is okay for dev, but ideally use env var or relative path if configured
+          const response = await axios.get(`http://localhost:5000/users/role/${currentUser.email}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          setRole(response.data.role);
+        } catch (error) {
+          console.error("Failed to fetch user role", error);
+          setRole('member');
+        }
+      } else {
+        setRole(null);
+      }
+
       setLoading(false);
     });
     return () => {
-      unsubscribe;
+      unsubscribe();
     };
   }, []);
 
   const authInfo = {
     user,
+    role,
     loading,
     createUser,
     signInUser,

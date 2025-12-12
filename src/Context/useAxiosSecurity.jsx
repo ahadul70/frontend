@@ -15,11 +15,11 @@ const useAxiosSecurity = () => {
             const token = localStorage.getItem("token");
             const currentToken = user?.accessToken || token;
 
-            console.log("Token in interceptor:", currentToken); // Debug log
+            //console.log("Token in interceptor:", currentToken); // Debug log
 
             if (currentToken) {
                 config.headers.Authorization = `Bearer ${currentToken}`;
-                console.log("Authorization Header useAxiosSecurity:", config.headers.Authorization);
+              //  console.log("Authorization Header useAxiosSecurity:", config.headers.Authorization);
             }
             return config;
         },

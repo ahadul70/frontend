@@ -1,12 +1,14 @@
 import React from 'react';
-import useAuth from '../../Context/useAuth';
-import useAxiosSecurity from '../../Context/useAxiosSecurity';
-import { useQuery } from '@tanstack/react-query';
+import useAuth from '../../../Context/useAuth';
+import useAxiosSecurity from '../../../Context/useAxiosSecurity';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const MyClubs = () => {
     const { user } = useAuth();
     const axiosInstance = useAxiosSecurity();
+    const queryClient = useQueryClient();
 
     const { data: allClubs = [] } = useQuery({
         queryKey: ['clubs'],
@@ -24,6 +26,29 @@ const MyClubs = () => {
         },
         enabled: !!user?.email
     });
+
+    // Leave Club Mutation
+    const leaveClubMutation = useMutation({
+        mutationFn: async (membershipId) => {
+            const res = await axiosInstance.delete(`/memberships/${membershipId}`);
+            if (res.data.deletedCount === 0) throw new Error("Failed to delete membership");
+            return res.data;
+        },
+        onSuccess: () => {
+            toast.success("You have left the club.");
+            queryClient.invalidateQueries({ queryKey: ['memberships'] });
+            queryClient.invalidateQueries({ queryKey: ['user-memberships'] });
+        },
+        onError: (err) => {
+            toast.error("Failed to leave club: " + err.message);
+        }
+    });
+
+    const handleLeaveClub = (membershipId, clubName) => {
+        if (window.confirm(`Are you sure you want to leave ${clubName}?`)) {
+            leaveClubMutation.mutate(membershipId);
+        }
+    };
 
     if (isLoading) return <div>Loading memberships...</div>;
 
@@ -57,6 +82,13 @@ const MyClubs = () => {
                                 <p className="text-sm text-gray-500">Location: {club.location}</p>
                                 <p className="text-sm">Joined: {new Date(joinedAt).toLocaleDateString()}</p>
                                 <div className="card-actions justify-end mt-4">
+                                    <button
+                                        className="btn btn-sm btn-error text-white"
+                                        onClick={() => handleLeaveClub(_id, club.clubName)}
+                                        disabled={leaveClubMutation.isPending}
+                                    >
+                                        Leave Club
+                                    </button>
                                     <Link to={`/club/${club._id}`} className="btn btn-sm btn-outline">View Details</Link>
                                 </div>
                             </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import useAxiosSecurity from './useAxiosSecurity';
+import useAxiosSecurity from '../../../Context/useAxiosSecurity';
+import toast from 'react-hot-toast';
 
 export default function EventCreate() {
   const {
@@ -32,14 +33,14 @@ export default function EventCreate() {
 
   const onSubmit = async (data) => {
     try {
-        const response = await axiosInstance.post('/events', data);
-        if (response.data.acknowledged) {
-            alert('Event created successfully!');
-            reset();
-        }
+      const response = await axiosInstance.post('/events', data);
+      if (response.data.acknowledged) {
+        alert('Event created successfully!');
+        reset();
+      }
     } catch (error) {
-        console.error("Error creating event:", error);
-        alert('Failed to create event');
+      console.error("Error creating event:", error);
+      alert('Failed to create event');
     }
   };
 
@@ -49,7 +50,7 @@ export default function EventCreate() {
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-6">Create New Event</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            
+
             {/* Club Dropdown */}
             <div className="form-control">
               <label className="label">
@@ -61,9 +62,9 @@ export default function EventCreate() {
               >
                 <option value="">Select a club</option>
                 {clubs.map((club) => (
-                    <option key={club._id} value={club._id}>
-                        {club.clubName}
-                    </option>
+                  <option key={club._id} value={club._id}>
+                    {club.clubName}
+                  </option>
                 ))}
               </select>
               {errors.clubId && <span className="text-error text-sm">Club selection is required</span>}
@@ -146,7 +147,7 @@ export default function EventCreate() {
                   className="input input-bordered w-full"
                   {...register('eventFee', { required: true, min: 0 })}
                 />
-                 {errors.eventFee && <span className="text-error text-sm">Fee is required for paid events</span>}
+                {errors.eventFee && <span className="text-error text-sm">Fee is required for paid events</span>}
               </div>
             )}
 

@@ -21,6 +21,9 @@ const Navbar = () => {
       <li>
         <NavLink to="/events">Events</NavLink>
       </li>
+      <li>
+        <NavLink to="/clubmangerregister">Club Manager Register</NavLink>
+      </li>
     {
       user && <>
       <li>

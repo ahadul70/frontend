@@ -78,18 +78,24 @@ const ClubDetails = () => {
                         </div>
                     )}
 
-                    <div className="card-actions justify-end mt-auto">
-                        <Link to="/" className="btn btn-outline">Back to Clubs</Link>
-                        {hasActiveMembership ? (
-                            <button className="btn btn-disabled" disabled>
-                                Already a Member
-                            </button>
-                        ) : (
-                            <Link to="/clubjoin" state={{ clubId: club._id }} className="btn btn-primary">
-                                Join Club
-                            </Link>
-                        )}
-                    </div>
+// ... inside the return statement ...
+
+<div className="card-actions justify-end mt-auto">
+    <Link to="/" className="btn btn-outline">Back to Clubs</Link>
+    {hasActiveMembership ? (
+        <button className="btn btn-disabled" disabled>
+            Already a Member
+        </button>
+    ) : (
+        <Link 
+            to="/join-club" 
+            state={{ clubId: club._id }} 
+            className="btn btn-primary"
+        >
+            Join Club
+        </Link>
+    )}
+</div>
                 </div>
             </div>
         </div>

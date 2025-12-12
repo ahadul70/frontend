@@ -3,21 +3,28 @@ import { useForm } from 'react-hook-form'
 import useAuth from '../../Context/useAuth'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import toast, { Toaster } from 'react-hot-toast'
+import axios from 'axios'
+import useAxiosSecurity from '../../Context/useAxiosSecurity'
 
 function Reg() {
     const { register, handleSubmit, formState: { errors } } = useForm()
-    const { createUser, updateUserProfile, Signinwithgoogle } = useAuth()  // added Signinwithgoogle
+    const { createUser, updateUserProfile, Signinwithgoogle } = useAuth()
     const [showpass, setShowpass] = useState(false)
     const [photoURL, setPhotoURL] = useState("")
     const navigate = useNavigate()
     const location = useLocation()
-
+    const axiosInstance = useAxiosSecurity();
     const handleshowpass = () => setShowpass(!showpass)
 
     const handleregister = (data) => {
         createUser(data.email, data.password)
             .then((result) => {
                 const user = result.user
+                axiosInstance.post("/users", {
+                    name: data.name,
+                    email: data.email,
+                    photoURL: photoURL,
+                })
                 // Update profile with name + photoURL
                 updateUserProfile(data.name, photoURL)
                     .then(() => {
@@ -34,8 +41,12 @@ function Reg() {
                     })
             })
             .catch((error) => {
-                const errorMessage = error.message
-                toast.error("Registration failed: " + (errorMessage.split('(')[0] || errorMessage))
+                if (error.response && (error.response.status === 400 || error.response.status === 409)) {
+                    toast.error("User already exists!")
+                } else {
+                    const errorMessage = error.message
+                    toast.error("Registration failed: " + (errorMessage.split('(')[0] || errorMessage))
+                }
             })
     }
 
@@ -45,8 +56,21 @@ function Reg() {
             return
         }
         Signinwithgoogle()
-            .then((result) => {
+            .then(async (result) => {
                 const user = result.user
+                try {
+                    await axiosInstance.post("/users", {
+                        name: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                    });
+                } catch (error) {
+                    if (error.response && (error.response.status === 409 || error.response.status === 400)) {
+                        console.log("User already exists in database, skipping creation.");
+                    } else {
+                        console.error("Error creating user in backend:", error);
+                    }
+                }
                 toast.success(`Welcome ${user.displayName || "User"}!`)
                 const from = location.state?.from || "/"
                 navigate(from, { replace: true })

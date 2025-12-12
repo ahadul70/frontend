@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
+import useAuth from '../../Context/useAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function ClubJoin() {
+export default function ClubSignUp() {
   const {
     register,
     handleSubmit,
@@ -14,10 +15,12 @@ export default function ClubJoin() {
     formState: { errors },
   } = useForm();
 
+  const { user } = useAuth();
   const axiosInstance = useAxiosSecurity();
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [selectedClub, setSelectedClub] = React.useState(null);
 
   // Fetch clubs list
   const {
@@ -32,7 +35,7 @@ export default function ClubJoin() {
     }
   });
 
-  // Pre‑select club when coming from ClubDetails
+  // Pre-select club when coming from ClubDetails via location.state
   useEffect(() => {
     if (clubs.length > 0 && location.state?.clubId) {
       const pre = clubs.find(c => c._id === location.state.clubId);
@@ -43,7 +46,12 @@ export default function ClubJoin() {
     }
   }, [clubs, location.state, setValue]);
 
-  const [selectedClub, setSelectedClub] = React.useState(null);
+  // Set email from auth
+  useEffect(() => {
+    if (user?.email) {
+      setValue('userEmail', user.email);
+    }
+  }, [user, setValue]);
 
   const handleClubChange = e => {
     const id = e.target.value;
@@ -51,15 +59,14 @@ export default function ClubJoin() {
     setSelectedClub(club);
   };
 
-
   // Mutation for free clubs only (paid clubs go through payment page)
   const joinMutation = useMutation({
     mutationFn: async data => {
-      // Create membership directly (no payment needed for free clubs)
+      // Create membership directly (pending status for free clubs)
       const membershipData = {
         userEmail: data.userEmail,
         clubId: selectedClub._id,
-        status: 'active',
+        status: 'pending', // Pending approval for free clubs
         paymentId: null,
         joinedAt: new Date(),
       };
@@ -68,16 +75,17 @@ export default function ClubJoin() {
       return membershipRes;
     },
     onSuccess: () => {
-      toast.success('Successfully joined club!');
+      toast.success('Request sent! Membership is pending approval.');
+      navigate('/');
       reset();
       setSelectedClub(null);
       queryClient.invalidateQueries({ queryKey: ['clubs'] });
       queryClient.invalidateQueries({ queryKey: ['user-memberships'] });
     },
     onError: err => {
-      // Check if it's a duplicate membership error (409 Conflict)
       if (err.response?.status === 409) {
-        toast.error('You already have an active membership for this club!');
+        // Use the specific message from the backend (Active vs Pending)
+        toast.error(err.response?.data?.message || 'You already have a membership for this club.');
       } else {
         toast.error('Failed to join club: ' + (err.response?.data?.message || err.message));
       }
@@ -90,8 +98,11 @@ export default function ClubJoin() {
       return;
     }
 
-    // If club has a membership fee, navigate to payment page
-    if (selectedClub.membershipFee > 0) {
+    // Check if club has a fee (robust check using parseFloat)
+    const fees = parseFloat(selectedClub.membershipFee || 0);
+
+    if (fees > 0) {
+      // Paid clubs -> Redirect to Payment Page
       navigate('/payment/club-fee', {
         state: {
           club: selectedClub,
@@ -99,16 +110,17 @@ export default function ClubJoin() {
         }
       });
     } else {
-      // For free clubs, directly create membership
+      // Free clubs -> Direct Join (Pending Status)
       joinMutation.mutate(data);
     }
   };
 
-  if (isLoading) return <div className="text-center py-20">Loading clubs…</div>;
+  if (isLoading) return <div className="text-center py-20">Loading clubs...</div>;
   if (isError) return <div className="text-center py-20 text-error">Error loading clubs.</div>;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-base-200 py-10">
+      <Toaster/>
       <div className="card w-full max-w-lg shadow-2xl bg-base-100">
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-6">Join a Club</h1>
@@ -153,33 +165,29 @@ export default function ClubJoin() {
                     />
                   </svg>
                   <span>
-                    Membership Fee: <strong>{selectedClub.membershipFee}</strong>
+                    Membership Fee: <strong>{parseFloat(selectedClub.membershipFee || 0) > 0 ? `$${selectedClub.membershipFee}` : 'Free'}</strong>
                   </span>
                 </div>
               </div>
             )}
 
-            {/* User Email */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Your Email</span>
               </label>
               <input
                 type="email"
-                placeholder="email@example.com"
-                className="input input-bordered w-full"
+                readOnly
+                className="input input-bordered w-full bg-base-200 cursor-not-allowed"
                 {...register('userEmail', { required: true })}
               />
-              {errors.userEmail && (
-                <span className="text-error text-sm">Email is required</span>
-              )}
             </div>
 
             <div className="form-control mt-6">
               <button type="submit" className="btn btn-primary" disabled={joinMutation.isPending}>
-                {selectedClub && selectedClub.membershipFee > 0
+                {selectedClub && parseFloat(selectedClub.membershipFee || 0) > 0
                   ? `Pay $${selectedClub.membershipFee} & Join`
-                  : 'Join Club'}
+                  : 'Join Club (Pending Approval)'}
               </button>
             </div>
           </form>
