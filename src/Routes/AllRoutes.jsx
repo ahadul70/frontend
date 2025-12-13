@@ -8,6 +8,8 @@ import Authlayout from "../Layout/Authlayout";
 import ClubDetails from "../Pages/ClubDetails/ClubDetails";
 import PrivateRoute from "./PrivRoutes";
 import DashBoardLayout from "../Layout/DashBoard/DashBoardLayout";
+import AdminRoute from "./AdminRoute";
+import ManagerRoute from "./ManagerRoute";
 import MemberOverview from "../Pages/Dashboard/members/MemberOverview";
 import MyClubs from "../Pages/Dashboard/members/MyClubs";
 import MyEvents from "../Pages/Dashboard/members/MyEvents";
@@ -25,12 +27,13 @@ import PendingClubManagers from "../Pages/Dashboard/Admin/PendingClubManagers";
 import ApprovedClubManagers from '../Pages/Dashboard/Admin/ApprovedClubManagers';
 import PendingEvents from '../Pages/Dashboard/Admin/PendingEvents';
 import ApprovedEvents from '../Pages/Dashboard/Admin/ApprovedEvents';
+import ManageUsers from "../Pages/Dashboard/Admin/ManageUsers";
 import ApprovedClubs from "../Pages/Dashboard/Admin/ApprovedClubs";
 import ApprovedMembers from "../Pages/Dashboard/ClubManager/ApprovedMembers";
 import PendingMembers from "../Pages/Dashboard/ClubManager/PendingMembers";
 import Clubs from "../Pages/Clubs/Clubs";
 import Events from "../Pages/Events/Events";
-
+import CreateEvent from "../Component/Registration/EventRegistration/EventCreate";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -120,22 +123,104 @@ export const router = createBrowserRouter([
       { path: "profile", Component: MemberProfile },
 
       // Club Manager Routes
-      { path: "manage-clubs", Component: ManageClubs },
-      { path: "club-manager/:id", Component: ManagerDashboard },
-      { path: "approved-members", Component: ApprovedMembers },
-      { path: "pending-members", Component: PendingMembers },
-      //
+      {
+        path: "manage-clubs",
+        element: (
+          <ManagerRoute>
+            <ManageClubs />
+          </ManagerRoute>
+        )
+      },
+      {
+        path: "club-manager/:id",
+        element: (
+          <ManagerRoute>
+            <ManagerDashboard />
+          </ManagerRoute>
+        )
+      },
+      {
+        path: "approved-members",
+        element: (
+          <ManagerRoute>
+            <ApprovedMembers />
+          </ManagerRoute>
+        )
+      },
+      {
+        path: "pending-members",
+        element: (
+          <ManagerRoute>
+            <PendingMembers />
+          </ManagerRoute>
+        )
+      },
+      {
+        path: "create-event",
+        element: (
+          <ManagerRoute>
+            <CreateEvent />
+          </ManagerRoute>
+        )
+      },
 
       // Admin Routes
-      { path: "pending-clubs", Component: PendingClubs },
-      { path: "pending-clubmanagers", Component: PendingClubManagers },
-      { path: "approved-clubmanagers", Component: ApprovedClubManagers },
-      { path: "approved-clubs", Component: ApprovedClubs },
-      { path: "approved-events", Component: ApprovedEvents },
-      { path: "pending-events", Component: PendingEvents },
-
-
-
+      {
+        path: "pending-clubs",
+        element: (
+          <AdminRoute>
+            <PendingClubs />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "pending-clubmanagers",
+        element: (
+          <AdminRoute>
+            <PendingClubManagers />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "approved-clubmanagers",
+        element: (
+          <AdminRoute>
+            <ApprovedClubManagers />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "approved-clubs",
+        element: (
+          <AdminRoute>
+            <ApprovedClubs />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "approved-events",
+        element: (
+          <AdminRoute>
+            <ApprovedEvents />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "pending-events",
+        element: (
+          <AdminRoute>
+            <PendingEvents />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "manage-users",
+        element: (
+          <AdminRoute>
+            <ManageUsers />
+          </AdminRoute>
+        )
+      },
       // Redirect or default
       { path: "mydashboard", Component: MemberOverview }, // Legacy/alias
       { index: true, Component: MemberOverview },

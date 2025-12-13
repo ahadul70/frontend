@@ -78,7 +78,7 @@ const ClubDetails = () => {
                         </div>
                     )}
 
-// ... inside the return statement ...
+
 
 <div className="card-actions justify-end mt-auto">
     <Link to="/" className="btn btn-outline">Back to Clubs</Link>

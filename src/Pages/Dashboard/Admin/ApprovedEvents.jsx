@@ -66,7 +66,7 @@ const ApprovedEvents = () => {
                                             <div className="font-bold">{event.title}</div>
                                         </div>
                                     </td>
-                                    <td>{event.date}</td>
+                                    <td>{event.eventDate || event.date}</td>
                                     <td>{event.location}</td>
                                     <td className="max-w-xs truncate" title={event.description}>{event.description}</td>
                                     <td className="flex gap-2">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
 import useAuth from '../../Context/useAuth';
@@ -47,6 +48,7 @@ const CheckoutForm = ({ price, onSuccess }) => {
         if (error) {
             console.log('[error]', error);
             setCardError(error.message);
+            toast.error(error.message);
         } else {
             console.log('[PaymentMethod]', paymentMethod);
             setCardError('');
@@ -70,11 +72,13 @@ const CheckoutForm = ({ price, onSuccess }) => {
         if (confirmError) {
             console.log(confirmError);
             setCardError(confirmError.message);
+            toast.error(confirmError.message);
             setProcessing(false);
         } else {
             console.log('payment intent', paymentIntent);
             if (paymentIntent.status === 'succeeded') {
                 setProcessing(false);
+                toast.success(`Payment Successful! TransactionId: ${paymentIntent.id}`);
                 onSuccess(paymentIntent);
             }
         }
@@ -83,6 +87,7 @@ const CheckoutForm = ({ price, onSuccess }) => {
     return (
         <form onSubmit={handleSubmit}>
             <div className="form-control mb-4">
+                <Toaster />
                 <div className="border border-gray-300 rounded-lg p-4 bg-white">
                     <CardElement
                         options={{

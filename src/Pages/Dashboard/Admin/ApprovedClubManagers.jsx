@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecurity from '../../../Context/useAxiosSecurity';
 import toast, { Toaster } from 'react-hot-toast';
@@ -6,11 +6,12 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const ApprovedClubManagers = () => {
     const axiosInstance = useAxiosSecurity();
+    const [searchTerm, setSearchTerm] = useState('');
 
     const { data: managers = [], refetch } = useQuery({
-        queryKey: ['approved-club-managers'],
+        queryKey: ['approved-club-managers', searchTerm],
         queryFn: async () => {
-            const res = await axiosInstance.get('/club-managers?status=approved');
+            const res = await axiosInstance.get(`/club-managers?status=approved&search=${searchTerm}`);
             return res.data;
         }
     });
@@ -30,7 +31,18 @@ const ApprovedClubManagers = () => {
     return (
         <div className="p-6 bg-base-100 rounded-lg shadow-md">
             <Toaster />
-            <h2 className="text-2xl font-bold mb-6 text-primary">Approved Club Managers</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-primary">Approved Club Managers</h2>
+                <div className="form-control">
+                    <input
+                        type="text"
+                        placeholder="Search by name or email..."
+                        className="input input-bordered w-full max-w-xs"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
             <div className="overflow-x-auto">
                 <table className="table w-full">
                     <thead>

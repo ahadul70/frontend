@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecurity from '../../../Context/useAxiosSecurity';
 import useAuth from '../../../Context/useAuth';
@@ -7,14 +7,14 @@ import toast, { Toaster } from 'react-hot-toast';
 const ApprovedMembers = () => {
     const axiosInstance = useAxiosSecurity();
     const { user } = useAuth(); // If we need to filter by logged in manager
+    const [searchTerm, setSearchTerm] = useState('');
 
     const { data: memberships = [], refetch } = useQuery({
-        queryKey: ['approved-members'],
+        queryKey: ['approved-members', searchTerm],
         enabled: !!user?.email,
         queryFn: async () => {
-            // Similarly to pending, this gets all active memberships.
             // Future improvement: Filter by clubs managed by current user.
-            const res = await axiosInstance.get('/memberships?status=active');
+            const res = await axiosInstance.get(`/memberships?status=active&search=${searchTerm}`);
             return res.data;
         }
     });
@@ -35,7 +35,19 @@ const ApprovedMembers = () => {
     return (
         <div className="p-6 bg-base-100 rounded-lg shadow-md">
             <Toaster />
-            <h2 className="text-2xl font-bold mb-6 text-primary">Approved Members</h2>
+            <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-primary">Approved Members</h2>
+                <div className="form-control">
+                    <input
+                        type="text"
+                        placeholder="Search by email..."
+                        className="input input-bordered w-full max-w-xs"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
+
             <div className="overflow-x-auto">
                 <table className="table w-full">
                     <thead>
