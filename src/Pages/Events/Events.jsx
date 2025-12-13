@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
+import { Link } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
 
 const Events = () => {
@@ -48,7 +49,7 @@ const Events = () => {
                                 </div>
                                 <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
                                 <div className="card-actions justify-end">
-                                    <button className="btn btn-secondary btn-outline btn-sm">Learn More</button>
+                                    <Link to={`/event/${event._id}`} className="btn btn-secondary btn-outline btn-sm">Learn More</Link>
                                 </div>
                             </div>
                         </div>

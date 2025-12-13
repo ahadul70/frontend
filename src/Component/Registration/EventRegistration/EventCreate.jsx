@@ -33,7 +33,14 @@ export default function EventCreate() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axiosInstance.post('/events', data);
+      const selectedClub = clubs.find(c => c._id === data.clubId);
+      const eventData = {
+        ...data,
+        clubName: selectedClub?.clubName,
+        clubImage: selectedClub?.bannerImage // Optional, if you want valid image
+      };
+      
+      const response = await axiosInstance.post('/events', eventData);
       if (response.data.acknowledged) {
         alert('Event created successfully!');
         reset();

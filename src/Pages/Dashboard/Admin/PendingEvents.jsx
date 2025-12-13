@@ -69,14 +69,17 @@ const PendingEvents = () => {
                                     <th>{index + 1}</th>
                                     <td>
                                         <div className="flex items-center gap-3">
-                                            {event.image && (
+                                            {(event.image || event.clubImage) && (
                                                 <div className="avatar">
                                                     <div className="mask mask-squircle w-12 h-12">
-                                                        <img src={event.image} alt="Event" />
+                                                        <img src={event.image || event.clubImage} alt="Event" />
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="font-bold">{event.title}</div>
+                                            <div>
+                                                <div className="font-bold">{event.title || event.name || "Unnamed Event"}</div>
+                                                {event.clubName && <div className="text-sm opacity-50">{event.clubName}</div>}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>{event.eventDate || event.date}</td>

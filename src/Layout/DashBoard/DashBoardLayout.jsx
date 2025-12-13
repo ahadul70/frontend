@@ -135,6 +135,19 @@ export default function DashBoardLayout() {
               <>
                 <li>
                   <NavLink
+                    to="/dashboard/admin-dashboard"
+                    className={isCollapsed ? "tooltip tooltip-right" : ""}
+                    data-tip="Admin Dashboard"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                    </svg>
+                    {!isCollapsed && <span>Admin Dashboard</span>}
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
                     to="/dashboard/pending-clubs"
                     className={isCollapsed ? "tooltip tooltip-right" : ""}
                     data-tip="Pending Clubs"
@@ -185,12 +198,64 @@ export default function DashBoardLayout() {
                     {!isCollapsed && <span>Approved Club Managers</span>}
                   </NavLink>
                 </li>
+                 <li>
+              <NavLink
+                to="/dashboard/pending-events"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Pending Events"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {!isCollapsed && <span>Pending Events</span>}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/approved-events"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Approved Events"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {!isCollapsed && <span>Approved Events</span>}
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/manage-users"
+                className={isCollapsed ? "tooltip tooltip-right" : ""}
+                data-tip="Manage Users"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {!isCollapsed && <span>Manage User</span>}
+              </NavLink>
+            </li>
               </>
             )}
 
             {/* MANAGER LINKS */}
             {role === 'club_manager' && (
               <>
+                <li>
+                  <NavLink
+                    to="/dashboard/clubcreate"
+                    className={isCollapsed ? "tooltip tooltip-right" : ""}
+                    data-tip="Create Club"
+                  >
+                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    {!isCollapsed && <span>Create Club</span>}
+                  </NavLink>
+                </li>
                 <li>
                   <NavLink
                     to="/dashboard/approved-members"
@@ -242,32 +307,7 @@ export default function DashBoardLayout() {
                     </svg>
                     {!isCollapsed && <span>Create Event</span>}
                   </NavLink>
-                </li>            <li>
-              <NavLink
-                to="/dashboard/pending-events"
-                className={isCollapsed ? "tooltip tooltip-right" : ""}
-                data-tip="Pending Events"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                {!isCollapsed && <span>Pending Events</span>}
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/dashboard/approved-events"
-                className={isCollapsed ? "tooltip tooltip-right" : ""}
-                data-tip="Approved Events"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                {!isCollapsed && <span>Approved Events</span>}
-              </NavLink>
-            </li>
+                </li>           
               </>
             )}
 

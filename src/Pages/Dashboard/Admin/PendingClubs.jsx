@@ -70,7 +70,7 @@ const PendingClubs = () => {
                                         <div className="flex items-center gap-3">
                                             <div className="avatar">
                                                 <div className="mask mask-squircle w-12 h-12">
-                                                    <img src={club.clubImage || "https://via.placeholder.com/150"} alt="Club" />
+                                                    <img src={club.bannerImage || "https://via.placeholder.com/150"} alt="Club" />
                                                 </div>
                                             </div>
                                             <div>
@@ -78,8 +78,8 @@ const PendingClubs = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="max-w-xs truncate" title={club.clubDescription}>{club.clubDescription}</td>
-                                    <td>{club.clubCategory}</td>
+                                    <td className="max-w-xs truncate" title={club.description}>{club.description}</td>
+                                    <td>{club.category}</td>
                                     <td className="flex gap-2">
                                         <button onClick={() => handleApprove(club._id)} className="btn btn-sm btn-success text-white">Approve</button>
                                         <button onClick={() => handleReject(club._id)} className="btn btn-sm btn-error text-white">Reject</button>

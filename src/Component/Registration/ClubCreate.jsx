@@ -119,6 +119,15 @@ export default function ClubCreate() {
                 className="input input-bordered w-full"
                 {...register('bannerImage')}
               />
+              <a
+                        href="https://postimages.org"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 underline text-sm mb-2 inline-block"
+                    >
+                        Upload here (Postimages.org)
+                    </a>
+              />
             </div>
 
             {/* Membership Fee */}

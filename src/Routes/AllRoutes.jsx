@@ -34,10 +34,15 @@ import PendingMembers from "../Pages/Dashboard/ClubManager/PendingMembers";
 import Clubs from "../Pages/Clubs/Clubs";
 import Events from "../Pages/Events/Events";
 import CreateEvent from "../Component/Registration/EventRegistration/EventCreate";
+import EventDetails from "../Pages/Events/EventDetails";
+import AdminDashboard from "../Pages/Dashboard/Admin/AdminDashboard";
+import ErrorPage from "../Pages/Shared/ErrorPage";
+import Pricing from "../Pages/Shared/Pricing";
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
+    errorElement: <ErrorPage />,
     children: [
       { index: true, Component: Home },
       {
@@ -65,13 +70,10 @@ export const router = createBrowserRouter([
         Component: Events
       },
       {
-        path: "clubregister",
-        element: (
-          <PrivateRoute>
-            <ClubCreate />
-          </PrivateRoute>
-        ),
+        path: "event/:id",
+        Component: EventDetails
       },
+
       {
         path: "payment/club-fee",
         element: (
@@ -97,6 +99,10 @@ export const router = createBrowserRouter([
           </PrivateRoute>
         ),
       },
+   
+      { path: "login", Component: Signin },
+      { path: "register", Component: Signup },
+      { path: "pricing", Component: Pricing },
     ],
   },
   {
@@ -162,6 +168,13 @@ export const router = createBrowserRouter([
             <CreateEvent />
           </ManagerRoute>
         )
+      },      {
+        path: "clubcreate",
+        element: (
+          <ManagerRoute>
+            <ClubCreate />
+          </ManagerRoute>
+        ),
       },
 
       // Admin Routes
@@ -210,6 +223,14 @@ export const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <PendingEvents />
+          </AdminRoute>
+        )
+      },
+      {
+        path: "admin-dashboard",
+        element: (
+          <AdminRoute>
+            <AdminDashboard />
           </AdminRoute>
         )
       },

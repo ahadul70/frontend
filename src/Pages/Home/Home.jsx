@@ -1,10 +1,20 @@
 import React from 'react'
-import ClubCards from '../../Component/ClubCards/ClubCards'
+import Hero from '../../Component/Home/Hero'
+import FeaturedClubs from '../../Component/Home/FeaturedClubs'
+import HowItWorks from '../../Component/Home/HowItWorks'
+import WhyJoin from '../../Component/Home/WhyJoin'
+import Categories from '../../Component/Home/Categories'
+import CallToAction from '../../Component/Home/CallToAction'
+
 const Home = () => {
   return (
-    <>Home
-    
-    <ClubCards/>
+    <>
+        <Hero/>
+        <FeaturedClubs/>
+        <HowItWorks/>
+        <WhyJoin/>
+        <Categories/>
+        <CallToAction/>
     </>
   )
 }

@@ -10,6 +10,7 @@ const ManagerDashboard = () => {
     const queryClient = useQueryClient();
     const [activeTab, setActiveTab] = useState('overview');
     const [editingEvent, setEditingEvent] = useState(null);
+    const [viewingRegistrations, setViewingRegistrations] = useState(null);
 
     // 1. Fetch Stats
     const { data: stats = {}, isLoading: statsLoading } = useQuery({
@@ -234,6 +235,15 @@ const ManagerDashboard = () => {
                                             <p className="text-sm text-gray-500">{new Date(event.date).toLocaleDateString()} @ {event.location || 'Online'}</p>
                                         </div>
                                         <div className="flex gap-2">
+                                            <button 
+                                                className="btn btn-xs btn-outline btn-info"
+                                                onClick={() => {
+                                                    setViewingRegistrations(event._id);
+                                                    document.getElementById('view_registrations_modal').showModal();
+                                                }}
+                                            >
+                                                Registrations
+                                            </button>
                                             <button className="btn btn-xs btn-ghost" onClick={() => {
                                                 setEditingEvent(event);
                                                 document.getElementById('edit_event_modal').showModal();
@@ -250,6 +260,17 @@ const ManagerDashboard = () => {
                     )}
                 </div>
             )}
+
+            {/* EVENT REGISTRATIONS MODAL */}
+            <dialog id="view_registrations_modal" className="modal">
+                <div className="modal-box w-11/12 max-w-3xl">
+                    <form method="dialog">
+                        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onClick={() => setViewingRegistrations(null)}>✕</button>
+                    </form>
+                    <h3 className="font-bold text-lg mb-4">Event Registrations</h3>
+                    <RegistrationsList eventId={viewingRegistrations} axiosInstance={axiosInstance} />
+                </div>
+            </dialog>
 
             {/* CREATE EVENT MODAL */}
             <dialog id="create_event_modal" className="modal">
@@ -317,6 +338,50 @@ const ManagerDashboard = () => {
                     )}
                 </div>
             </dialog>
+        </div>
+    );
+};
+
+// Sub-component for listing registrations
+const RegistrationsList = ({ eventId, axiosInstance }) => {
+    const { data: registrations = [], isLoading } = useQuery({
+        queryKey: ['event-registrations', eventId],
+        queryFn: async () => {
+             if (!eventId) return [];
+            const { data } = await axiosInstance.get(`/events/${eventId}/registrations`);
+            return data;
+        },
+        enabled: !!eventId
+    });
+
+    if (isLoading) return <div className="text-center p-4"><span className="loading loading-spinner"></span></div>;
+
+    if (registrations.length === 0) return <p className="text-center p-4">No registrations found for this event.</p>;
+
+    return (
+        <div className="overflow-x-auto">
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>User Email</th>
+                        <th>Status</th>
+                        <th>Registered At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {registrations.map((reg) => (
+                        <tr key={reg._id}>
+                            <td>{reg.userEmail}</td>
+                            <td>
+                                <span className={`badge ${reg.status === 'cancelled' ? 'badge-error' : 'badge-success'} text-white capitalize`}>
+                                    {reg.status || 'registered'}
+                                </span>
+                            </td>
+                            <td>{new Date(reg.registrationDate || reg.createdAt).toLocaleDateString()} {new Date(reg.registrationDate || reg.createdAt).toLocaleTimeString()}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
