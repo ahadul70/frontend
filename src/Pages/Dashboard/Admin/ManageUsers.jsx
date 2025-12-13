@@ -9,7 +9,7 @@ const ManageUsers = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortRole, setSortRole] = useState(false); // Toggle sort
 
-    const { data: users = [], isLoading } = useQuery({
+    const { data: users = [], isLoading, isError, error } = useQuery({
         queryKey: ['users', searchTerm],
         queryFn: async () => {
             const res = await axiosInstance.get(`/users?search=${searchTerm}`);
@@ -81,7 +81,9 @@ const ManageUsers = () => {
                     <tbody>
                         {isLoading ? (
                             <tr><td colSpan="5" className="text-center">Loading...</td></tr>
-                        ) : sortedUsers.length === 0 ? (
+                        ) : isError ? (
+                            <tr><td colSpan="5" className="text-center text-error">Error: {error.message || "Failed to load users"}</td></tr>
+                        ) : users.length === 0 ? (
                             <tr><td colSpan="5" className="text-center">No users found.</td></tr>
                         ) : (
                             sortedUsers.map((user) => (
