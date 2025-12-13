@@ -64,7 +64,7 @@ export default function AuthProvider({ children }) {
       if (currentUser) {
         try {
           const token = await currentUser.getIdToken();
-          const response = await axios.get(`http://localhost:5000/users/role/${currentUser.email}`, {
+          const response = await axios.get(`${process.env.VITE_API_URL}/users/role/${currentUser.email}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           setRole(response.data.role);
