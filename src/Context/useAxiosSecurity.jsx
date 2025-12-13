@@ -4,7 +4,7 @@ import useAuth from "../Context/useAuth"
 const useAxiosSecurity = () => {
     const { user } = useAuth();
     const axiosInstance = axios.create({
-        baseURL: `${process.env.VITE_API_URL}`,
+        baseURL: import.meta.env.VITE_API_URL,
         headers: {
             "Content-Type": "application/json",
         },
