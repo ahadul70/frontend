@@ -377,7 +377,7 @@ const RegistrationsList = ({ eventId, axiosInstance }) => {
                                     {reg.status || 'registered'}
                                 </span>
                             </td>
-                            <td>{new Date(reg.registrationDate || reg.createdAt).toLocaleDateString()} {new Date(reg.registrationDate || reg.createdAt).toLocaleTimeString()}</td>
+                            <td>{new Date(reg.registeredAt || reg.registrationDate || reg.createdAt).toLocaleDateString()} {new Date(reg.registeredAt || reg.registrationDate || reg.createdAt).toLocaleTimeString()}</td>
                         </tr>
                     ))}
                 </tbody>
