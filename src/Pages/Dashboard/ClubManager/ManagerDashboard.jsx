@@ -4,6 +4,9 @@ import useAxiosSecurity from '../../../Context/useAxiosSecurity';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 
+import CreateEventModal from './CreateEventModal';
+import EditEventModal from './EditEventModal';
+
 const ManagerDashboard = () => {
     const { id } = useParams();
     const axiosInstance = useAxiosSecurity();
@@ -62,18 +65,6 @@ const ManagerDashboard = () => {
             queryClient.invalidateQueries(['manager-stats', id]);
         },
         onError: (err) => toast.error("Failed to update member status")
-    });
-
-    const createEventMutation = useMutation({
-        mutationFn: async (newEvent) => await axiosInstance.post('/events', { ...newEvent, clubId: id }),
-        onSuccess: () => { toast.success("Event created!"); queryClient.invalidateQueries(['club-events', id]); document.getElementById('create_event_modal').close(); },
-        onError: (err) => toast.error("Failed to create event")
-    });
-
-    const updateEventMutation = useMutation({
-        mutationFn: async ({ eventId, data }) => await axiosInstance.put(`/events/${eventId}`, { ...data, clubId: id }),
-        onSuccess: () => { toast.success("Event updated!"); queryClient.invalidateQueries(['club-events', id]); setEditingEvent(null); document.getElementById('edit_event_modal').close(); },
-        onError: (err) => toast.error("Failed to update event")
     });
 
     const deleteEventMutation = useMutation({
@@ -273,71 +264,10 @@ const ManagerDashboard = () => {
             </dialog>
 
             {/* CREATE EVENT MODAL */}
-            <dialog id="create_event_modal" className="modal">
-                <div className="modal-box">
-                    <h3 className="font-bold text-lg">Create New Event</h3>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.target);
-                        const newEvent = {
-                            eventTitle: formData.get('eventTitle'),
-                            date: formData.get('date'),
-                            location: formData.get('location'),
-                            description: formData.get('description'),
-                            isPaid: formData.get('isPaid') === 'on',
-                            eventFee: formData.get('eventFee')
-                        };
-                        createEventMutation.mutate(newEvent);
-                    }} className="py-4 flex flex-col gap-3">
-                        <input name="eventTitle" placeholder="Event Title" className="input input-bordered w-full" required />
-                        <input name="date" type="date" className="input input-bordered w-full" required />
-                        <input name="location" placeholder="Location" className="input input-bordered w-full" required />
-                        <textarea name="description" placeholder="Description" className="textarea textarea-bordered"></textarea>
-                        <div className="form-control">
-                            <label className="label cursor-pointer justify-start gap-4">
-                                <span className="label-text">Paid Event?</span>
-                                <input type="checkbox" name="isPaid" className="checkbox" />
-                            </label>
-                        </div>
-                        <input name="eventFee" type="number" placeholder="Fee Amount (if paid)" className="input input-bordered w-full" />
-                        <div className="modal-action">
-                            <button className="btn btn-primary" type="submit">Create</button>
-                            <button className="btn" type="button" onClick={() => document.getElementById('create_event_modal').close()}>Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            </dialog>
+            <CreateEventModal clubId={id} />
 
             {/* EDIT EVENT MODAL */}
-            <dialog id="edit_event_modal" className="modal">
-                <div className="modal-box">
-                    <h3 className="font-bold text-lg">Edit Event</h3>
-                    {editingEvent && (
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const formData = new FormData(e.target);
-                            const updatedData = {
-                                eventTitle: formData.get('eventTitle'),
-                                date: formData.get('date'),
-                                location: formData.get('location'),
-                                description: formData.get('description'),
-                                isPaid: formData.get('isPaid') === 'on',
-                                eventFee: formData.get('eventFee')
-                            };
-                            updateEventMutation.mutate({ eventId: editingEvent._id, data: updatedData });
-                        }} className="py-4 flex flex-col gap-3">
-                            <input name="eventTitle" defaultValue={editingEvent.eventTitle} placeholder="Event Title" className="input input-bordered w-full" required />
-                            <input name="date" type="date" defaultValue={editingEvent.date?.split('T')[0]} className="input input-bordered w-full" required />
-                            <input name="location" defaultValue={editingEvent.location} placeholder="Location" className="input input-bordered w-full" required />
-                            <textarea name="description" defaultValue={editingEvent.description} placeholder="Description" className="textarea textarea-bordered"></textarea>
-                            <div className="modal-action">
-                                <button className="btn btn-primary" type="submit">Update</button>
-                                <button className="btn" type="button" onClick={() => document.getElementById('edit_event_modal').close()}>Cancel</button>
-                            </div>
-                        </form>
-                    )}
-                </div>
-            </dialog>
+            <EditEventModal event={editingEvent} clubId={id} onClose={() => setEditingEvent(null)} />
         </div>
     );
 };

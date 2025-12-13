@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { Link } from 'react-router-dom';
 import useAxiosSecurity from '../../Context/useAxiosSecurity';
 
 const Events = () => {
-  const axiosInstance = useAxiosSecurity();
+    const axiosInstance = useAxiosSecurity();
+    const [search, setSearch] = useState('');
+    const [sort, setSort] = useState('');
 
     const { data: events = [], isLoading } = useQuery({
-        queryKey: ['pending-clubs'],
+        queryKey: ['events', search, sort],
         queryFn: async () => {
-            const res = await axiosInstance.get('/events?status=approved');
+            const params = new URLSearchParams({ status: 'approved' });
+            if (search) params.append('search', search);
+            if (sort) params.append('sort', sort);
+            
+            const res = await axiosInstance.get(`/events?${params.toString()}`);
             return res.data;
         }
     });
@@ -22,8 +28,31 @@ const Events = () => {
         <div className="container mx-auto px-4 py-12">
             <h1 className="text-4xl font-bold text-center mb-10 text-secondary">Upcoming Events</h1>
 
+            {/* Filter & Sort Controls */}
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-10 text-center max-w-4xl mx-auto bg-base-100 p-4 rounded-xl shadow-sm">
+                <div className="form-control w-full md:w-1/2">
+                    <input
+                        type="text"
+                        placeholder="Search events..."
+                        className="input input-bordered w-full"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <select 
+                    className="select select-bordered w-full md:w-auto"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                >
+                    <option value="">Sort By</option>
+                    <option value="date:asc">Date: Upcoming First</option>
+                    <option value="date:desc">Date: Latest First</option>
+                    <option value="eventTitle:asc">Name: A-Z</option>
+                </select>
+            </div>
+
             {events.length === 0 ? (
-                <div className="text-center text-gray-500 text-xl">No upcoming events scheduled. Stay tuned!</div>
+                <div className="text-center text-gray-500 text-xl">No upcoming events matching your criteria.</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {events.map(event => (
