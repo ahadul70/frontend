@@ -64,7 +64,6 @@ export default function AuthProvider({ children }) {
       if (currentUser) {
         try {
           const token = await currentUser.getIdToken();
-          // Using localhost:5000 is okay for dev, but ideally use env var or relative path if configured
           const response = await axios.get(`http://localhost:5000/users/role/${currentUser.email}`, {
             headers: { Authorization: `Bearer ${token}` }
           });

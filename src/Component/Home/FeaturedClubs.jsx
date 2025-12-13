@@ -11,7 +11,6 @@ const FeaturedClubs = () => {
         queryKey: ['clubs-featured'],
         queryFn: async () => {
             const { data } = await axiosInstance.get('/clubs');
-            // Mocking "featured" by taking first 6, or you could add a sort/filter
             return data.slice(0, 6); 
         },
     });

@@ -40,10 +40,9 @@ export default function EventRegistration() {
     }
   };
 
-  // Mutation for free events only (paid events go through payment page)
   const registerMutation = useMutation({
     mutationFn: async (data) => {
-      // Create event registration directly (no payment needed for free events)
+      
       const registrationData = {
         ...data,
         status: 'registered',
@@ -76,7 +75,7 @@ export default function EventRegistration() {
       return;
     }
 
-    // If event is paid, navigate to payment page
+
     if (selectedEvent.isPaid && selectedEvent.eventFee > 0) {
       navigate('/payment/event-fee', {
         state: {
@@ -86,7 +85,7 @@ export default function EventRegistration() {
         }
       });
     } else {
-      // For free events, directly create registration
+ 
       registerMutation.mutate(data);
     }
   };

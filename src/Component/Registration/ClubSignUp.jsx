@@ -59,14 +59,13 @@ export default function ClubSignUp() {
     setSelectedClub(club);
   };
 
-  // Mutation for free clubs only (paid clubs go through payment page)
+
   const joinMutation = useMutation({
     mutationFn: async data => {
-      // Create membership directly (pending status for free clubs)
       const membershipData = {
         userEmail: data.userEmail,
         clubId: selectedClub._id,
-        status: 'pending', // Pending approval for free clubs
+        status: 'pending',  
         paymentId: null,
         joinedAt: new Date(),
       };
@@ -84,7 +83,6 @@ export default function ClubSignUp() {
     },
     onError: err => {
       if (err.response?.status === 409) {
-        // Use the specific message from the backend (Active vs Pending)
         toast.error(err.response?.data?.message || 'You already have a membership for this club.');
       } else {
         toast.error('Failed to join club: ' + (err.response?.data?.message || err.message));
@@ -98,11 +96,9 @@ export default function ClubSignUp() {
       return;
     }
 
-    // Check if club has a fee (robust check using parseFloat)
     const fees = parseFloat(selectedClub.membershipFee || 0);
 
     if (fees > 0) {
-      // Paid clubs -> Redirect to Payment Page
       navigate('/payment/club-fee', {
         state: {
           club: selectedClub,
@@ -110,7 +106,7 @@ export default function ClubSignUp() {
         }
       });
     } else {
-      // Free clubs -> Direct Join (Pending Status)
+        
       joinMutation.mutate(data);
     }
   };

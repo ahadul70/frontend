@@ -127,7 +127,6 @@ export default function ClubCreate() {
                     >
                         Upload here (Postimages.org)
                     </a>
-              />
             </div>
 
             {/* Membership Fee */}
