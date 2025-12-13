@@ -242,6 +242,7 @@ export const router = createBrowserRouter([
           </AdminRoute>
         )
       },
+
       // Redirect or default
       { path: "mydashboard", Component: MemberOverview }, // Legacy/alias
       { index: true, Component: MemberOverview },
